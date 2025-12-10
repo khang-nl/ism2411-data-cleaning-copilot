@@ -17,4 +17,7 @@ def handle_missing_values(df, price_col, quantity_col):
 def remove_invalid_values(df, price_col, quantity_col):
     df = df[(df[price_col] >= 0) & (df[quantity_col] >= 0)]
     return df
-print(df)
+
+# Load and display the dataframe
+df = pd.read_csv('../data/raw/sales_data_raw.csv')
+print(df.head())
