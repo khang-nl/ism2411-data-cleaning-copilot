@@ -24,6 +24,13 @@ def clean_product_data(df, product_col, category_col):
     # Normalize product names FIRST for grouping
     df['_normalized'] = df[product_col].str.lower().str.strip().str.replace(' +', ' ', regex=True)
     
+    # Helper function to capitalize product names properly (handling acronyms)
+    def capitalize_product_name(name):
+        # Special handling for known acronyms
+        if 'usb' in name.lower():
+            return name.lower().replace('usb', 'USB').title().replace('Usb', 'USB')
+        return name.strip().title()
+    
     # Group by normalized product name and combine data
     def clean_category(x):
         # Clean and get first non-empty category
@@ -32,7 +39,7 @@ def clean_product_data(df, product_col, category_col):
         return non_empty.iloc[0] if len(non_empty) > 0 else cleaned.iloc[0]
     
     grouped = df.groupby('_normalized', as_index=False).agg({
-        product_col: lambda x: x.str.strip().str.title().iloc[0],
+        product_col: lambda x: capitalize_product_name(x.iloc[0]),
         category_col: clean_category,
         'Price': lambda x: pd.to_numeric(x, errors='coerce').dropna().max() if len(pd.to_numeric(x, errors='coerce').dropna()) > 0 else np.nan,
         'Qty': lambda x: pd.to_numeric(x, errors='coerce').sum(),
